@@ -1,0 +1,44 @@
+{
+  "bridges": [
+    {
+      "id": "B001",
+      "name": "Forth Bridge",
+      "location": "Queensferry",
+      "bridge_type": "Cantilever",
+      "year_built": 1890,
+      "inspections": [
+        {
+          "date": "2024-03-15",
+          "inspector": "John Smith",
+          "score": 72,
+          "defects": "Minor paint deterioration on south tower",
+          "recomedations": "Schedule repainting in next 2 years"
+        }
+      ]
+    },
+    {
+      "id": "B002",
+      "name": "Forth Road Bridge",
+      "location": "Queensferry",
+      "bridge_type": "Suspension",
+      "year_built": 1964,
+      "inspections": []
+    },
+    {
+      "id": "B003",
+      "name": "Queensferry Crossing",
+      "location": "Queensferry",
+      "bridge_type": "Cable-stayed",
+      "year_built": 2017,
+      "inspections": [
+        {
+          "date": "2024-09-20",
+          "inspector": "Sarah Jones",
+          "score": 95,
+          "defects": "None Observed",
+          "recomedations": "Continue Routine Monitoring"
+        }
+      ]
+    }
+  ]
+}
