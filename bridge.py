@@ -1,4 +1,4 @@
-
+import inspection
 
 class Bridge:
 
@@ -67,6 +67,18 @@ class Bridge:
         return self.__inspections
     
     @inspections.setter 
-    def inspections(self, inspections):
+    def inspections(self, inspections_import):
         """Setter for __inspections"""
-        self.__inspections = inspections
+        temp_inspections_list = []
+        for i in inspections_import:
+            new_inspection = inspection.Inspection(
+                date = i["date"],
+                inspector = i["inspector"],
+                score = i["score"],
+                recomendations = i["recomendations"],
+                defects = i["defects"])
+            temp_inspections_list.append(new_inspection)
+        self.__inspections = temp_inspections_list
+
+        
+        
