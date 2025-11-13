@@ -1,13 +1,13 @@
 
 
-class inspection:
+class Inspection:
     
-    def __init__(self):
-        self.__date = 0
-        self.__inspector = "",
-        self.__score = 0
-        self.__defects = "",
-        self.__recomedations = ""
+    def __init__(self, date, inspector, score, defects, recomendations):
+        self.date = date
+        self.inspector = inspector,
+        self.score = score
+        self.defects = defects,
+        self.recomendations = recomendations
         
     @property
     def date(self):
@@ -46,15 +46,15 @@ class inspection:
     
     @defects.setter
     def defects(self, defects):
-        """Setter for __score"""
+        """Setter for __defects"""
         self.__defects = defects
     
     @property
-    def recomedations(self):
-        """Getter for __recomedations"""
-        return self.__recomedations
+    def recomendations(self):
+        """Getter for __recomendations"""
+        return self.__recomendations
     
-    @recomedations.setter
-    def recomedations(self, recomedations):
-        """Setter for __score"""
-        self.__recomedations = recomedations
+    @recomendations.setter
+    def recomendations(self, recomendations):
+        """Setter for __recomendations"""
+        self.__recomendations = recomendations
