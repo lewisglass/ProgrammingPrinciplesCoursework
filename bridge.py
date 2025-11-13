@@ -75,8 +75,8 @@ class Bridge:
                 date = i["date"],
                 inspector = i["inspector"],
                 score = i["score"],
-                recomendations = i["recomendations"],
-                defects = i["defects"])
+                defects = i["defects"],
+                recommendations = i["recommendations"])
             temp_inspections_list.append(new_inspection)
         self.__inspections = temp_inspections_list
 

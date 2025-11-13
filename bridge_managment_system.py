@@ -55,14 +55,13 @@ class BridgeManagmentSystem:
                 print(j.date)
                 print(j.inspector)
                 print(j.score)
-                print(j.recomendations)
+                print(j.recommendations)
                 print(j.defects)
         self.display.main_menu()
 
     def import_bridge_list(self):
         """Imports list of bridges from bridge_data.json"""
         from_file = self.file_manager.read_file()
-        print(from_file)
         self.bridge_list = []
         for i in from_file:
             new_bridge = bridge.Bridge(
@@ -76,5 +75,5 @@ class BridgeManagmentSystem:
         
     def run(self):
         self.display.main_menu()
-    
+        self.import_bridge_list()
         

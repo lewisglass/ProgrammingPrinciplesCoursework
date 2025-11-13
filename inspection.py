@@ -1,13 +1,13 @@
 
-
+from datetime import datetime
 class Inspection:
     
-    def __init__(self, date, inspector, score, defects, recomendations):
+    def __init__(self, date, inspector, score, defects, recommendations):
         self.date = date
-        self.inspector = inspector,
+        self.inspector = inspector
         self.score = score
-        self.defects = defects,
-        self.recomendations = recomendations
+        self.defects = defects
+        self.recommendations = recommendations
         
     @property
     def date(self):
@@ -17,7 +17,8 @@ class Inspection:
     @date.setter
     def date(self, date):
         """Setter for __date"""
-        self.__date = date
+        date_format = '%Y-%m-%d'
+        self.__date = datetime.strptime(date, date_format)
     
     @property
     def inspector(self):
@@ -50,11 +51,11 @@ class Inspection:
         self.__defects = defects
     
     @property
-    def recomendations(self):
-        """Getter for __recomendations"""
-        return self.__recomendations
+    def recommendations(self):
+        """Getter for __recommendations"""
+        return self.__recommendations
     
-    @recomendations.setter
-    def recomendations(self, recomendations):
-        """Setter for __recomendations"""
-        self.__recomendations = recomendations
+    @recommendations.setter
+    def recommendations(self, recommendations):
+        """Setter for __recommendations"""
+        self.__recommendations = recommendations

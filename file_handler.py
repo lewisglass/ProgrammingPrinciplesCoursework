@@ -40,7 +40,6 @@ class FileOperations:
     def read_file(self):
         open_file = open(self.directory)
         parsed_data = json.load(open_file)
-        
         return parsed_data["bridges"]
             
         open_file.close()
