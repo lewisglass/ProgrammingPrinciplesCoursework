@@ -10,6 +10,7 @@ class Bridge:
         self.bridge_type = bridge_type
         self.year_built = year_built
         self.inspections = inspections
+        self.average_score = self.calculate_average_score()
 
     @property
     def id(self):
@@ -79,6 +80,26 @@ class Bridge:
                 recommendations = i["recommendations"])
             temp_inspections_list.append(new_inspection)
         self.__inspections = temp_inspections_list
-
+        
+    def calculate_average_score(self):
+        """Sets average score"""
+        total_score = 0
+        for inspection in self.inspections:
+            total_score += inspection.score
+        if len(self.inspections) != 0:
+            return total_score / len(self.inspections)
+        else: 
+            return None
+        
+    @property
+    def average_score(self):
+        """Getter for __average_score"""
+        return self.__average_score
+    
+    @average_score.setter 
+    def average_score(self, average_score):
+        """Setter for __average_score"""
+        self.__average_score = average_score        
+    
         
         

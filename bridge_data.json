@@ -39,6 +39,29 @@
           "recommendations": "Continue Routine Monitoring"
         }
       ]
+    },
+    {
+      "id": "B004",
+      "name": "Glenfinnan Viaduct",
+      "location": "Glenfinnan",
+      "bridge_type": "Viaduct",
+      "year_built": 1901,
+      "inspections": [
+        {
+          "date": "2021-12-02",
+          "inspector": "Zuzanna Szklarska",
+          "score": 75,
+          "defects": "Areas of water damage detected but no structural damage",
+          "recommendations": "Inspect again within 12 months"
+        },
+        {
+          "date": "2022-07-01",
+          "inspector": "George MacDonald",
+          "score": 35,
+          "defects": "Water damage extensive",
+          "recommendations": "Repairs needed imminently"
+        }
+      ]
     }
   ]
 }

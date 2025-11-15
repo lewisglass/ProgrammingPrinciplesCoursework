@@ -3,6 +3,7 @@ class Display:
     
     def __init__(self, current_state):
         self.curent_state = current_state
+        self.console_length = 70
         
     @property
     def current_state(self):
@@ -12,14 +13,37 @@ class Display:
     @current_state.setter
     def current_state(self, current_state):
         self.__current_state = current_state
+
+    @property
+    def console_length(self):
+        """Getter for __console_length"""
+        return self.__console_length
+    
+    @console_length.setter
+    def console_length(self, console_length):
+        """Setter for __console_length"""
+        self.__console_length = console_length
         
+    def add_line(self, console_string, left_aligned = False, right_aligned = False):
+        border = "|"
+        if left_aligned:
+            print (f"{border}{console_string.ljust(self.console_length)}{border}")
+        elif right_aligned:
+            print (f"{border}{console_string.rjust(self.console_length)}{border}")
+        else:
+            print (f"{border}{console_string.center(self.console_length)}{border}")
+
+    def add_dividing_line(self):
+        line = "_" * self.console_length
+        self.add_line(line)
+
     def main_menu(self):
-        print("_" * 70)
-        print("|", "Main Menu".center(68), "|")
-        print("_" * 70)
-        print("|", " " * 68, "|")
-        print("|   Select an option:")
-        print("|")
-        print("|   1. View all bridges")
-        print("|   2. Add a bridge")
+        self.add_dividing_line()
+        self.add_line("Main Menu")
+        self.add_dividing_line()
+        self.add_line("")
+        self.add_line("     Select an option:", left_aligned = True)
+        self.add_line("")
+        self.add_line(" 1. View all bridges", left_aligned = True)
+        self.add_line(" 2. Add a bridge", left_aligned = True)
     

@@ -46,18 +46,20 @@ class BridgeManagmentSystem:
 
     def print_bridges(self):
         for i in self.bridge_list:
-            print(i.id)
+            print(f"Bridge {self.bridge_list.index(i)}")
+            print(f"    Bridge ID:{i.id}")
             print(i.name)
             print(i.location)
             print(i.bridge_type)
             print(i.year_built)
+            print(i.average_score)
             for j in i.inspections:
                 print(j.date)
                 print(j.inspector)
                 print(j.score)
                 print(j.recommendations)
                 print(j.defects)
-        self.display.main_menu()
+            print("------------------------------")
 
     def import_bridge_list(self):
         """Imports list of bridges from bridge_data.json"""
@@ -74,6 +76,18 @@ class BridgeManagmentSystem:
             self.bridge_list.append(new_bridge)
         
     def run(self):
-        self.display.main_menu()
+
+        main_menu_dict = {
+            "1": self.print_bridges
+        }
         self.import_bridge_list()
+        user_exit = False
+        while not user_exit:
+            self.display.main_menu()
+            user_selection = input().strip()
+            if user_selection in main_menu_dict:
+                main_menu_dict[user_selection]()
+            self.import_bridge_list()
+            #self.print_bridges()
+            user_exit = True
         
