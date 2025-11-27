@@ -1,9 +1,10 @@
+import sys
 
 class Display:
     
     def __init__(self, current_state):
         self.curent_state = current_state
-        self.console_length = 70
+        self.console_length = 79
         
     @property
     def current_state(self):
@@ -38,6 +39,7 @@ class Display:
         self.add_line(line)
 
     def main_menu(self):
+        chosen = False
         self.add_dividing_line()
         self.add_line("Main Menu")
         self.add_dividing_line()
@@ -46,4 +48,16 @@ class Display:
         self.add_line("")
         self.add_line(" 1. View all bridges", left_aligned = True)
         self.add_line(" 2. Add a bridge", left_aligned = True)
+        self.add_dividing_line()
+        print("Enter a choice (1-2): ")
+        while not chosen:
+            choice = input().strip()
+            if choice == 1 or choice == 2:
+                print(choice)
+                chosen = True
+            else:
+                print("ERROR, make a new choice: ")
+
+
+        #return input("Select an option")
     
