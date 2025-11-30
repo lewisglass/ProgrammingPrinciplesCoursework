@@ -38,7 +38,7 @@ class Display:
         line = "_" * self.console_length
         self.add_line(line)
 
-    def main_menu(self):
+    def main_menu_display(self):
         chosen = False
         self.add_dividing_line()
         self.add_line("Main Menu")
@@ -48,16 +48,18 @@ class Display:
         self.add_line("")
         self.add_line(" 1. View all bridges", left_aligned = True)
         self.add_line(" 2. Add a bridge", left_aligned = True)
+        self.add_line(" 3. Quit", left_aligned = True)
         self.add_dividing_line()
-        print("Enter a choice (1-2): ")
-        while not chosen:
-            choice = input().strip()
-            if choice == 1 or choice == 2:
-                print(choice)
-                chosen = True
-            else:
-                print("ERROR, make a new choice: ")
-
-
-        #return input("Select an option")
-    
+        
+    def bridge_menu_display(self):
+        self.add_dividing_line()
+        self.add_line("Bridge Menu")
+        self.add_dividing_line()
+        self.add_line("")
+        self.add_line("     Select an option:", left_aligned = True)
+        self.add_line("")
+        self.add_line(" 1. Add a bridge", left_aligned = True)
+        self.add_line(" 2. Add an Inspection", left_aligned = True)
+        self.add_line(" 2. Main Menu", left_aligned = True)
+        self.add_dividing_line()
+        

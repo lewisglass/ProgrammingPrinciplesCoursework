@@ -40,27 +40,6 @@ class BridgeManagmentSystem:
         """Setter for display"""
         self.__display = display
         
-    def add_bridge(self, bridge):
-        """Add a bridge to the list of bridges"""
-        self.__bridge_list.append(bridge)
-
-    def print_bridges(self):
-        for i in self.bridge_list:
-            print(f"Bridge {self.bridge_list.index(i)}")
-            print(f"    Bridge ID:{i.id}")
-            print(i.name)
-            print(i.location)
-            print(i.bridge_type)
-            print(i.year_built)
-            print(i.average_score)
-            for j in i.inspections:
-                print(j.date)
-                print(j.inspector)
-                print(j.score)
-                print(j.recommendations)
-                print(j.defects)
-            print("------------------------------")
-
     def import_bridge_list(self):
         """Imports list of bridges from bridge_data.json"""
         from_file = self.file_manager.read_file()
@@ -74,20 +53,86 @@ class BridgeManagmentSystem:
                 year_built = i["year_built"],
                 inspections = i["inspections"])
             self.bridge_list.append(new_bridge)
-        
-    def run(self):
 
-        main_menu_dict = {
-            "1": self.print_bridges
+    def add_bridge(self, bridge):
+        """Add a bridge to the list of bridges"""
+        self.__bridge_list.append(bridge)
+
+    def add_inspection(self):
+        print("TO DO!!!!")
+
+    def print_bridges(self):
+        for i in self.bridge_list:
+            print(f"Bridge ID    :  {i.id}")
+            print(f"Name         :  {i.name}")
+            print(f"Location     :  {i.location}")
+            print(f"Type         :  {i.bridge_type}")
+            print(f"Year built   :  {i.year_built}")
+            print(f"Average score:  {i.average_score}")
+            print("Inspections ")
+            if i.inspections:
+                for j in i.inspections:
+                    print(f"Date           :  {j.date}")
+                    print(f"Inspector      :  {j.inspector}")
+                    print(f"Score          :  {j.score}")
+                    print(f"Recommendations:  {j.recommendations}")
+                    print(f"Defects        :  {j.defects}")
+            else:
+                print("None")
+            print("------------------------------")
+
+    def bridge_menu(self):
+        bridge_menu_dict = {
+            1 : self.add_bridge,
+            2 : self.add_inspection,
+            3 : self.main_menu
         }
-        self.import_bridge_list()
-        user_exit = False
-        while not user_exit:
-            self.display.main_menu()
-            user_selection = input().strip()
-            if user_selection in main_menu_dict:
-                main_menu_dict[user_selection]()
-            self.import_bridge_list()
-            #self.print_bridges()
-            user_exit = True
+        choice = 0
+        self.display.bridge_menu_display()
+        self.print_bridges()
+        while True:
+            print("Enter a choice (1-3):")
+            try:
+                choice = int(input().strip())
+                if choice in bridge_menu_dict:
+                    bridge_menu_dict[choice]()
+                else:
+                    print("Invalid, make a new choice: ")
+            except ValueError:
+                print("Invalid, choice must be an integer, make a new choice")
         
+    def exit(self):
+        print("Goodbye!")
+        quit()
+
+    def main_menu(self):
+        main_menu_dict = {
+            1 : self.bridge_menu,
+            2 : self.add_bridge,
+            3 : self.exit
+        }
+        choice = 0
+        self.display.main_menu_display()
+        while True:
+            print("Enter a choice (1-3):")
+            try:
+                choice = int(input().strip())
+                if choice in main_menu_dict:
+                    main_menu_dict[choice]()
+                else:
+                    print("Invalid, make a new choice: ")
+            except ValueError:
+                print("Invalid, choice must be an integer, make a new choice")
+
+    def run(self):
+        
+        try:
+            self.import_bridge_list()
+            self.main_menu()
+            
+        except ValueError as error:
+            print(error)
+        
+
+         
+
