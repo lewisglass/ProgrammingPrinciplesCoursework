@@ -2,9 +2,9 @@ import inspection
 
 class Bridge:
 
-    def __init__(self, id, inspections, name, location, bridge_type, year_built):
+    def __init__(self, bridge_id, inspections, name, location, bridge_type, year_built):
         """Bridge class contructor"""
-        self.id = id
+        self.bridge_id = bridge_id
         self.name = name
         self.location = location
         self.bridge_type = bridge_type
@@ -13,14 +13,14 @@ class Bridge:
         self.average_score = self.calculate_average_score()
 
     @property
-    def id(self):
-        """Getter for __id"""
-        return self.__id
+    def bridge_id(self):
+        """Getter for __bridge_id"""
+        return self.__bridge_id
     
-    @id.setter 
-    def id(self, id):
-        """Setter for __id"""
-        self.__id = id
+    @bridge_id.setter 
+    def bridge_id(self, bridge_id):
+        """Setter for __bridge_id"""
+        self.__bridge_id = bridge_id
 
     @property
     def name(self):
@@ -68,18 +68,8 @@ class Bridge:
         return self.__inspections
     
     @inspections.setter 
-    def inspections(self, inspections_import):
-        """Setter for __inspections"""
-        temp_inspections_list = []
-        for i in inspections_import:
-            new_inspection = inspection.Inspection(
-                date = i["date"],
-                inspector = i["inspector"],
-                score = i["score"],
-                defects = i["defects"],
-                recommendations = i["recommendations"])
-            temp_inspections_list.append(new_inspection)
-        self.__inspections = temp_inspections_list
+    def inspections(self, inspections):
+        self.__inspections = inspections
         
     def calculate_average_score(self):
         """Sets average score"""

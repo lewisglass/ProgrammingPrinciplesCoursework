@@ -38,28 +38,23 @@ class Display:
         line = "_" * self.console_length
         self.add_line(line)
 
-    def main_menu_display(self):
-        chosen = False
+    def add_bridge_menu(self):
         self.add_dividing_line()
-        self.add_line("Main Menu")
+        self.add_line("")
+        self.add_line("Add Bridge")
+        self.add_line("")
+        self.add_dividing_line()
+
+    def display_menu(self, menu_name, options):
+        self.add_dividing_line()
+        self.add_line(menu_name)
         self.add_dividing_line()
         self.add_line("")
         self.add_line("     Select an option:", left_aligned = True)
         self.add_line("")
-        self.add_line(" 1. View all bridges", left_aligned = True)
-        self.add_line(" 2. Add a bridge", left_aligned = True)
-        self.add_line(" 3. Quit", left_aligned = True)
+        counter = 1
+        for key in options:
+            name, _ = options[key]
+            self.add_line(f" {key}. {name}", left_aligned = True)
+            counter += 1
         self.add_dividing_line()
-        
-    def bridge_menu_display(self):
-        self.add_dividing_line()
-        self.add_line("Bridge Menu")
-        self.add_dividing_line()
-        self.add_line("")
-        self.add_line("     Select an option:", left_aligned = True)
-        self.add_line("")
-        self.add_line(" 1. Add a bridge", left_aligned = True)
-        self.add_line(" 2. Add an Inspection", left_aligned = True)
-        self.add_line(" 2. Main Menu", left_aligned = True)
-        self.add_dividing_line()
-        
