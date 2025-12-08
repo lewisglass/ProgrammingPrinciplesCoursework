@@ -2,18 +2,8 @@ import sys
 
 class Display:
     
-    def __init__(self, current_state):
-        self.curent_state = current_state
+    def __init__(self):
         self.console_length = 79
-        
-    @property
-    def current_state(self):
-        """Getter for __current_state"""
-        return self.current_state
-    
-    @current_state.setter
-    def current_state(self, current_state):
-        self.__current_state = current_state
 
     @property
     def console_length(self):
@@ -37,13 +27,6 @@ class Display:
     def add_dividing_line(self):
         line = "_" * self.console_length
         self.add_line(line)
-
-    def add_bridge_menu(self):
-        self.add_dividing_line()
-        self.add_line("")
-        self.add_line("Add Bridge")
-        self.add_line("")
-        self.add_dividing_line()
 
     def display_menu(self, menu_name, options):
         self.add_dividing_line()
