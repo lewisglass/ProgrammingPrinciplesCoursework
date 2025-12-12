@@ -1,7 +1,7 @@
 {
   "bridges": [
     {
-      "id": "B001",
+      "id": "B0001",
       "name": "Forth Bridge",
       "location": "Queensferry",
       "bridge_type": "Cantilever",
@@ -17,7 +17,7 @@
       ]
     },
     {
-      "id": "B002",
+      "id": "B0002",
       "name": "Forth Road Bridge",
       "location": "Queensferry",
       "bridge_type": "Suspension",
@@ -25,7 +25,7 @@
       "inspections": []
     },
     {
-      "id": "B003",
+      "id": "B0003",
       "name": "Queensferry Crossing",
       "location": "Queensferry",
       "bridge_type": "Cable-stayed",
@@ -41,10 +41,10 @@
       ]
     },
     {
-      "id": "B004",
+      "id": "B0004",
       "name": "Glenfinnan Viaduct",
       "location": "Glenfinnan",
-      "bridge_type": "Viaduct",
+      "bridge_type": "Arch",
       "year_built": 1901,
       "inspections": [
         {

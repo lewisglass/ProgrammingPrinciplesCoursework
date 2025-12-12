@@ -1,5 +1,6 @@
-
 from datetime import datetime
+import input_validation
+
 class Inspection:
     
     def __init__(self, date, inspector, score, defects, recommendations):
@@ -8,54 +9,79 @@ class Inspection:
         self.score = score
         self.defects = defects
         self.recommendations = recommendations
-        
+    
+    max_str_length = 4000
+    max_name_length = 70
+    max_score = 100
+    min_score = 0
+
+    @staticmethod
+    def validate_date(date: str) -> datetime:
+        return input_validation.validate_date(date)
+    @classmethod
+    def validate_inspector(cls, inspector: str) -> str:
+        return input_validation.validate_str(inspector,
+                                             cls.max_name_length)
+    @classmethod
+    def validate_score(cls, score: int) -> int:
+        return input_validation.validate_int(score, 
+                                             cls.min_score, 
+                                             cls.max_score)
+    @classmethod
+    def validate_defects(cls, defects: str) -> str:
+        return input_validation.validate_str(defects,
+                                             cls.max_str_length)
+    @classmethod
+    def validate_recommendations(cls, recommendations: str) -> str:
+        return input_validation.validate_str(recommendations, 
+                                             cls.max_str_length)
+
     @property
-    def date(self):
+    def date(self) -> datetime:
         """Getter for __date"""
         return self.__date
     
     @date.setter
-    def date(self, date):
+    def date(self, date: str):
         """Setter for __date"""
-        date_format = '%Y-%m-%d'
-        self.__date = datetime.strptime(date, date_format)
-    
+        self.__date = Inspection.validate_date(date)
+        
     @property
-    def inspector(self):
+    def inspector(self) -> str:
         """Getter for __inspector"""
         return self.__inspector
     
     @inspector.setter
-    def inspector(self, inspector):
+    def inspector(self, inspector: str):
         """Setter for __inspector"""
-        self.__inspector = inspector
+        self.__inspector = Inspection.validate_inspector(inspector)
     
     @property
-    def score(self):
+    def score(self) -> int:
         """Getter for __score"""
         return self.__score
     
     @score.setter
-    def score(self, score):
+    def score(self, score: int):
         """Setter for __score"""
-        self.__score = score
+        self.__score = Inspection.validate_score(score)
         
     @property
-    def defects(self):
+    def defects(self) -> str:
         """Getter for __defects"""
         return self.__defects
     
     @defects.setter
-    def defects(self, defects):
+    def defects(self, defects: str):
         """Setter for __defects"""
-        self.__defects = defects
+        self.__defects = Inspection.validate_defects(defects)
     
     @property
-    def recommendations(self):
+    def recommendations(self) -> str:
         """Getter for __recommendations"""
         return self.__recommendations
     
     @recommendations.setter
-    def recommendations(self, recommendations):
+    def recommendations(self, recommendations: str):
         """Setter for __recommendations"""
-        self.__recommendations = recommendations
+        self.__recommendations = Inspection.validate_recommendations(recommendations)
