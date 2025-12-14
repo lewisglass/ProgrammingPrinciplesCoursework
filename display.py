@@ -1,52 +1,55 @@
-import sys
+from datetime import datetime
 
 class Display:
     
-    def __init__(self):
-        self.console_length = 79
+    console_length: int = 79
 
-    @property
-    def console_length(self):
-        """Getter for __console_length"""
-        return self.__console_length
-    
-    @console_length.setter
-    def console_length(self, console_length):
-        """Setter for __console_length"""
-        self.__console_length = console_length
-        
-    def add_line(self, console_string, alignment = 'l'):
+    @staticmethod    
+    def add_line(console_string, alignment = 'l'):
         border = "|"
         if alignment == 'l':
-            print (f"{border}{console_string.ljust(self.console_length)}{border}")
+            print (f"{border}{console_string.ljust(Display.console_length)}{border}")
         elif alignment == 'r':
-            print (f"{border}{console_string.rjust(self.console_length)}{border}")
+            print (f"{border}{console_string.rjust(Display.console_length)}{border}")
         elif alignment == 'c':
-            print (f"{border}{console_string.center(self.console_length)}{border}")
+            print (f"{border}{console_string.center(Display.console_length)}{border}")
 
-    def add_dividing_line(self):
-        line = "_" * self.console_length
-        self.add_line(line)
+    @staticmethod 
+    def add_dividing_line():
+        line = "_" * Display.console_length
+        Display.add_line(line)
 
-    def display_bridge(self, bridge_id: str, name: str, location:str, 
+    @staticmethod 
+    def display_bridge(bridge_id: str, name: str, location:str, 
                         bridge_type: str, year_built: int ):
-        self.add_line(f"Bridge ID: {bridge_id}")
-        self.add_line(f"Bridge name: {name}")
-        self.add_line(f"Bridge location: {location}")
-        self.add_line(f"Bridge type: {bridge_type}")
-        self.add_line(f"Bridge year built: {year_built}")
-        self.add_dividing_line()
+        Display.add_line(f"ID: {bridge_id}")
+        Display.add_line(f"name: {name}")
+        Display.add_line(f"location: {location}")
+        Display.add_line(f"type: {bridge_type}")
+        Display.add_line(f"year built: {year_built}")
+        Display.add_dividing_line()
 
-    def display_menu(self, menu_name, options):
-        self.add_dividing_line()
-        self.add_line(menu_name, 'c')
-        self.add_dividing_line()
-        self.add_line("")
-        self.add_line("     Select an option:")
-        self.add_line("")
+    @staticmethod
+    def display_inspection(date: datetime, inspector: str, score: int, 
+                           defects: str, recommendations: str):
+        Display.add_line(f"Date: {date}")
+        Display.add_line(f"Inspector: {inspector}")
+        Display.add_line(f"Score: {score}")
+        Display.add_line(f"Defects: {defects}")
+        Display.add_line(f"Recommendations: {recommendations}")
+        Display.add_dividing_line()
+
+    @staticmethod
+    def display_menu(menu_name, options):
+        Display.add_dividing_line()
+        Display.add_line(menu_name, 'c')
+        Display.add_dividing_line()
+        Display.add_line("")
+        Display.add_line("     Select an option:")
+        Display.add_line("")
         counter = 1
         for key in options:
             name, _ = options[key]
-            self.add_line(f" {key}. {name}")
+            Display.add_line(f" {key}. {name}")
             counter += 1
-        self.add_dividing_line()
+        Display.add_dividing_line()

@@ -21,11 +21,12 @@ class Bridge:
     max_name_length = 70
     min_year_built = 1320
     max_year_built = datetime.now().year
+    bridge_id_length = 5
 
     @classmethod
     def validate_bridge_id(cls, bridge_id: str) -> str:
         """Static method for validating bridge id"""
-        input_validation.validate_str(bridge_id, 5, 5)
+        input_validation.validate_str(bridge_id, cls.bridge_id_length)
         if not bridge_id[0] == 'B':
             raise ValueError("Bridge id must start with a 'B'")
         try:
@@ -77,6 +78,30 @@ class Bridge:
                 for instance in inspections):
             raise ValueError("Inspection cannot be older than the bridge")
         return inspections
+    
+    def add_inspection(self, date: datetime, inspector: str, 
+                       score: int, defects: str, recommendations: str):
+        while True:
+            try:  
+                new_inspection = inspection.Inspection(date,
+                                                       inspector,
+                                                       score,
+                                                       defects,
+                                                       recommendations)
+                self.inspections.append(new_inspection)
+            except ValueError as error:
+                raise ValueError from error
+            except TypeError as error:
+                raise TypeError from error
+
+    def calculate_average_score(self) -> float | None:
+        """Sets average score"""
+        total_score = 0
+        if self.inspections == []:
+            return None
+        for inspection in self.inspections:
+            total_score += inspection.score
+        return total_score / len(self.inspections)
     
     @property
     def bridge_id(self) -> str:
@@ -136,12 +161,3 @@ class Bridge:
     def inspections(self, inspections: list[inspection.Inspection]):
         """Setter for __inspections"""
         self.__inspections = self.validate_inspections(inspections) 
-
-    def calculate_average_score(self) -> float | None:
-        """Sets average score"""
-        total_score = 0
-        if self.inspections == []:
-            return None
-        for inspection in self.inspections:
-            total_score += inspection.score
-        return total_score / len(self.inspections)

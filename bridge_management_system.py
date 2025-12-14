@@ -9,44 +9,54 @@ class BridgeManagementSystem:
 
     def __init__(self):
         """Contructor for BridgeManagementSystem class"""
-        self.bridge_list = []
-        self.file_manager = file_handler.FileOperations("bridge_data.json")
+        self.bridge_list: list[bridge.Bridge] = []
+        self.file_manager: file_handler.FileOperations = file_handler.FileOperations("bridge_data.json")
         self.display_handler = display.Display()
 
-        self.main_menu = menu.Menu("Main Menu", {
+        self.main_menu = menu.Menu("Main Menu", {})
+        self.bridges_menu = menu.Menu("Manage Bridges", {})
+        self.inspections_menu = menu.Menu("View Inspection History", {})
+        self.search_bridges_menu = menu.Menu("Search Bridges", {})
+        self.reports_menu = menu.Menu("Reports & Analysis", {})
+                                   
+        self.main_menu.options = {
             1: ("Manage Bridges", self.setup_menu(self.bridges_menu)),
             2: ("Reports & Analysis", self.setup_menu(self.reports_menu)),
             3: ("Save and Exit", self.exit)
-        })
-        self.bridges_menu = menu.Menu("Manage Bridges", {
+        }
+        self.bridges_menu.options = {
             1: ("Add a new bridge", self.add_bridge),
-            2: ("Record a new inspection", self.add_inspection),
-            3: ("View all bridges", self.view_all_bridges),
-            4: ("View inspections menu", self.setup_menu(self.inspections_menu)),
-            5: ("Search/filter bridges", self.setup_menu(self.search_bridges_menu)),
-            6: ("Back to Main Menu", self.setup_menu(self.main_menu))
-        })
-        self.inspections_menu = menu.Menu("View Inspection History", {
-            #1: ("Search by bridge name", self.view_inspection_by_name),
+            2: ("View all bridges", self.view_bridges),
+            3: ("Search/filter inspections", self.setup_menu(self.inspections_menu)),
+            4: ("Search/filter bridges", self.setup_menu(self.search_bridges_menu)),
+            5: ("Back to Main Menu", self.setup_menu(self.main_menu))
+        }
+        self.inspections_menu.options = {
+            1: ("View all inspections", self.view_inspections),
+            2: ("Record a new inspection", self.record_inspection),
+            #1: ("Search by bridge name", self.view_inspections),
             #2: ("Search by bridge ID", self.view_inspection_by_id),
             3: ("Back to Manage Bridges", self.setup_menu(self.bridges_menu))
-        })
-        self.search_bridges_menu = menu.Menu("Search Bridges", {
+        }
+        self.search_bridges_menu.options = {
             #1: ("Search by name", self.search_by_name),
             #2: ("Search by location", self.search_by_location),
             #3: ("Search by type", self.search_by_type),
-            4: ("Back to Manage Bridges", self.setup_menu(self.bridges_menu))
-        })
-        self.reports_menu = menu.Menu("Reports & Analysis", {
+            1: ("Back to Manage Bridges", self.setup_menu(self.bridges_menu))
+        }
+        self.reports_menu.options = {
             #1: ("Generate maintenance priority list", self.generate_priority_list),
             #2: ("Generate summary report", self.generate_summary_report),
-            3: ("Back to Main Menu", self.setup_menu(self.main_menu))
-        })
+            1: ("Back to Main Menu", self.setup_menu(self.main_menu))
+        }
 
-        self.current_menu = None
+        self.current_menu: menu.Menu = None
+
+    def setup_menu(self, new_menu):
+        def change_menu():
+            self.current_menu = new_menu
+        return change_menu
     
-    bride_ids = {}
-
     @property
     def file_manager(self):
         """Getter for __file_manager"""
@@ -118,14 +128,10 @@ class BridgeManagementSystem:
         except TypeError as error:
             print(f"Error importing Json values: {error}")
 
-    def check_input(self, validation_func, user_prompt, 
-                    y_n_prompt = False, max_size = 1):
+    def check_input(self, validation_func, user_prompt):
         while True:
             try:
-                if not y_n_prompt:
-                    user_value = validation_func(input(user_prompt))
-                else:
-                    user_value = validation_func(input(user_prompt), max_size)
+                user_value = validation_func(input(user_prompt))
             except ValueError as error:
                 print(f"Invalid value: {error}\n try again")
                 continue
@@ -133,9 +139,11 @@ class BridgeManagementSystem:
                 print(f"Invalid type: {error}\n try again")
                 continue
             break
+        return user_value
 
     def add_bridge(self):
         """Add a bridge to the list of bridges"""
+        inspections: list[bridge.inspection.Inspection] = []
         bridge_id = self.check_input(bridge.Bridge.validate_bridge_id,
                                     "Bridge ID: ")
         name = self.check_input(bridge.Bridge.validate_name,
@@ -146,59 +154,61 @@ class BridgeManagementSystem:
                                        "Bridge type: ")
         year_built = self.check_input(bridge.Bridge.validate_year_built,
                                       "Bridge year of construction: ")
-        temp_inspections = []
-        choice = self.check_input(input_validation.validate_str,
-                                    "Would you like to add Inspections? y/n",
-                                    True)
+        try:
+            new_bridge = bridge.Bridge(bridge_id,
+                                        inspections,
+                                        name,
+                                        location,
+                                        bridge_type,
+                                        year_built)
+            self.bridge_list.append(new_bridge)
+        except ValueError as error:
+            raise ValueError from error
+        except TypeError as error:
+            raise TypeError from error
+        choice = input_validation.validate_y_n(input_validation.validate_y_n,
+                                    "Would you like to add Inspections? y/n")
         if choice == 'y':
             while True:
-                temp_inspections.inspections.append(self.add_inspection())
-                choice = self.check_input(input_validation.validate_str,
-                                          "Would you like to add Inspections? y/n",
-                                          True)
+                self.input_inspection(new_bridge)
+                choice = input_validation.validate_y_n(input_validation.validate_str,
+                                          "Would you like to add inspection? y/n")
                 if choice == 'y':
                     continue
                 else :
                     break
-            try:
-                new_bridge = bridge.Bridge(bridge_id,
-                                            temp_inspections,
-                                            name,
-                                            location,
-                                            bridge_type,
-                                            year_built)
-                self.bridge_list.append(new_bridge)
-            except ValueError as error:
-                print(f"Invalid value: {error}\n try again")
-            except TypeError as error:
-                print(f"Invalid type: {error}\n try again")
+            self.bridge_list.append(new_bridge)
 
+    def record_inspection(self):
+        input_bridge_id = self.check_input(bridge.Bridge.validate_bridge_id, 
+                                     "Enter the ID of the bridge you wish to record an inspection for")
+        for loop_bridge in self.bridge_list:
+            if loop_bridge.bridge_id == input_bridge_id:
+                selected_bridge = loop_bridge
+                break
+        self.input_inspection(selected_bridge)
+        
 
-    def add_inspection(self):
-        while True:
-            try:  
-                temp_date = bridge.inspection.Inspection.validate_date(
-                                input("Inspection date (yyyy-mm-dd): "))
-                temp_inspector = bridge.inspection.Inspection.validate_inspector(
-                                input("Inspector name: "), 1, 70)
-                temp_score = bridge.inspection.Inspection.validate_score(
-                                input("Inspection score: "))
-                temp_defects = bridge.inspection.Inspection.validate_defects(
-                                input("Inspection defects: "))
-                temp_recommendations = bridge.inspection.Inspection.validate_recommendations(
-                                input("Inspection recommendations: "))
-                new_inspection = bridge.inspection.Inspection(temp_date,
-                                                            temp_inspector,
-                                                            temp_score,
-                                                            temp_defects,
-                                                            temp_recommendations)
-            except ValueError as error:
-                print(error)
-            except TypeError as error:
-                print(error)
-            return new_inspection
+    def input_inspection(self, this_bridge: bridge.Bridge):
+        date = self.check_input(bridge.inspection.Inspection.validate_date,
+                                "Inspection date: ")
+        inspector = self.check_input(bridge.inspection.Inspection.validate_inspector,
+                                "Inspector: ")
+        score = self.check_input(bridge.inspection.Inspection.validate_score,
+                                "Inspection score: ")
+        defects = self.check_input(bridge.inspection.Inspection.validate_defects,
+                                "Defects: ")
+        recommendations = self.check_input(bridge.inspection.Inspection.validate_recommendations,
+                                "Recommendations: ")
+        try:
+            this_bridge.add_inspection(date, inspector, score, 
+                                       defects, recommendations)
+        except ValueError as error:
+            raise ValueError from error
+        except TypeError as error:
+            raise TypeError from error
 
-    def view_all_bridges(self, local_bridge_list : list[bridge.Bridge] = None ):
+    def view_bridges(self, local_bridge_list: list[bridge.Bridge] = None):
         if local_bridge_list == None:
             local_bridge_list = self.bridge_list
         for bridge in local_bridge_list:
@@ -206,63 +216,52 @@ class BridgeManagementSystem:
                                                 bridge.location, bridge.bridge_type,
                                                 bridge.year_built)
         input("Press enter to continue...")
-        self.start_menu()
+
+    def view_inspections(self, local_bridge_list: list[bridge.Bridge] = None):
+        if local_bridge_list == None:
+            local_bridge_list = self.bridge_list
+        for bridge in local_bridge_list:
+            for inspection in bridge.inspections:
+                self.display_handler.display_inspection(inspection.date,
+                                                        inspection.inspector,
+                                                        inspection.score,
+                                                        inspection.defects,
+                                                        inspection.recommendations)
+        input("Press enter to continue...")
 
     def exit(self):
-        print("Goodbye!")
+        self.display_handler.add_line("Goodbye!", 'c')
         sys.exit()
 
     def bridge_search(self):
         search_name = input("Enter name of bridge to search for: ")
         local_bridge_list = [bridge for bridge in self.bridge_list
                               if bridge.name == search_name]
-        self.print_bridges(local_bridge_list)
-
-    def setup_menu(self, new_menu):
-        def change_menu():
-            self.current_menu = new_menu
-        return change_menu
-
-    def setup_bridges_menu(self):
-        self.current_menu = self.bridges_menu
-        self.start_menu()
-
-    def setup_reports_menu(self):
-        self.current_menu = self.reports_menu
-        self.start_menu()
-
-    def setup_search_inspections_menu(self):
-        self.current_menu = self.search_inspections_menu
-        self.start_menu()
-
-    def setup_search_bridges_menu(self):
-        self.current_menu = self.search_bridges_menu
-        self.start_menu()
-
-    def setup_main_menu(self):
-        self.current_menu = self.main_menu
-        self.start_menu()
+        self.view_bridges(local_bridge_list)
 
     def start_menu(self):
-
+        max_input = len(self.current_menu.options)
+        min_input = 1 #all menus start with 1
         self.display_handler.display_menu(self.current_menu.name, self.current_menu.options)
         while True:
-            print(f"Enter a choice (1-{len(self.current_menu.options)}):")
+            self.display_handler.add_line(f"Enter a choice (1-{len(self.current_menu.options)}):")
             try:
-                choice = int(input().strip())
+                choice = input_validation.validate_int(input(), min_input,
+                                                        max_input)
                 if choice in self.current_menu.options:
                     self.current_menu.option_func(choice)()
                 else:
                     print("Invalid, make a new choice: ")
             except ValueError:
                 print("Invalid, choice must be an integer, make a new choice")
-                self.start_menu()
+            self.start_menu()
 
     def run(self):
         
         try:
             self.import_bridge_list()
-            self.setup_main_menu()
+            self.setup_menu(self.main_menu)()
+            self.start_menu()
             
         except Exception as error:
             print(error)

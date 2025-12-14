@@ -10,6 +10,22 @@ def validate_str(input_str: str, max_length = 70) -> str:
         raise ValueError(f"Input must be less than {max_length} chars")
     return input_str
 
+def validate_y_n(input_str: str) -> str:
+    while True:
+        try:
+            refined_str = validate_str(input_str, 1)
+            if refined_str == 'n' or refined_str == 'y':
+                return refined_str
+            else:
+                print("Input must be y or n")
+                continue
+        except ValueError as error:
+            print(f"Invalid value: {error}\n try again")
+            continue
+        except TypeError as error:
+            print(f"Invalid type: {error}\n try again")
+            continue
+
 def validate_int(input_int: int | str, min_size = 0, max_size = 100) -> int:
     try:
         input_int = int(input_int)
