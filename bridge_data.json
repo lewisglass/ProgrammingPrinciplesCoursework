@@ -1,7 +1,7 @@
 {
   "bridges": [
     {
-      "id": "B001",
+      "id": "B0001",
       "name": "Forth Bridge",
       "location": "Queensferry",
       "bridge_type": "Cantilever",
@@ -12,12 +12,12 @@
           "inspector": "John Smith",
           "score": 72,
           "defects": "Minor paint deterioration on south tower",
-          "recomendations": "Schedule repainting in next 2 years"
+          "recommendations": "Schedule repainting in next 2 years"
         }
       ]
     },
     {
-      "id": "B002",
+      "id": "B0002",
       "name": "Forth Road Bridge",
       "location": "Queensferry",
       "bridge_type": "Suspension",
@@ -25,7 +25,7 @@
       "inspections": []
     },
     {
-      "id": "B003",
+      "id": "B0003",
       "name": "Queensferry Crossing",
       "location": "Queensferry",
       "bridge_type": "Cable-stayed",
@@ -36,7 +36,30 @@
           "inspector": "Sarah Jones",
           "score": 95,
           "defects": "None Observed",
-          "recomendations": "Continue Routine Monitoring"
+          "recommendations": "Continue Routine Monitoring"
+        }
+      ]
+    },
+    {
+      "id": "B0004",
+      "name": "Glenfinnan Viaduct",
+      "location": "Glenfinnan",
+      "bridge_type": "Arch",
+      "year_built": 1901,
+      "inspections": [
+        {
+          "date": "2021-12-02",
+          "inspector": "Zuzanna Szklarska",
+          "score": 75,
+          "defects": "Areas of water damage detected but no structural damage",
+          "recommendations": "Inspect again within 12 months"
+        },
+        {
+          "date": "2022-07-01",
+          "inspector": "George MacDonald",
+          "score": 35,
+          "defects": "Water damage extensive",
+          "recommendations": "Repairs needed imminently"
         }
       ]
     }
