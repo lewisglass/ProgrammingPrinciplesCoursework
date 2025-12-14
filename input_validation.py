@@ -1,5 +1,18 @@
 from datetime import datetime
 
+def check_input(self, validation_func, user_prompt):
+        while True:
+            try:
+                user_value = validation_func(input(user_prompt))
+            except ValueError as error:
+                print(f"Invalid value: {error}\n try again")
+                continue
+            except TypeError as error:
+                print(f"Invalid type: {error}\n try again")
+                continue
+            break
+        return user_value
+
 def validate_str(input_str: str, max_length = 70) -> str:
     """Method for validating str"""
     if not isinstance(input_str, str):
@@ -11,20 +24,16 @@ def validate_str(input_str: str, max_length = 70) -> str:
     return input_str
 
 def validate_y_n(input_str: str) -> str:
-    while True:
-        try:
-            refined_str = validate_str(input_str, 1)
-            if refined_str == 'n' or refined_str == 'y':
-                return refined_str
-            else:
-                print("Input must be y or n")
-                continue
-        except ValueError as error:
-            print(f"Invalid value: {error}\n try again")
-            continue
-        except TypeError as error:
-            print(f"Invalid type: {error}\n try again")
-            continue
+    try:
+        refined_str = validate_str(input_str, 1)
+        if refined_str == 'n' or refined_str == 'y':
+            return refined_str
+        else:
+            raise ValueError("Input must be y or n")
+    except ValueError as error:
+        raise ValueError(f"Invalid value: {error}\n try again")
+    except TypeError as error:
+        raise TypeError(f"Invalid type: {error}\n try again")
 
 def validate_int(input_int: int | str, min_size = 0, max_size = 100) -> int:
     try:
@@ -32,7 +41,7 @@ def validate_int(input_int: int | str, min_size = 0, max_size = 100) -> int:
     except ValueError as error:
         raise ValueError("Could not convert input to integer") from error
     if not (min_size <= input_int <= max_size):
-        raise ValueError(f"Input must be between {min_size} and {max_size} chars")
+        raise ValueError(f"Input must be between {min_size} and {max_size}")
     return input_int
 
 def validate_date(input_date: str) -> datetime:

@@ -16,7 +16,6 @@ class BridgeManagementSystem:
         self.main_menu = menu.Menu("Main Menu", {})
         self.bridges_menu = menu.Menu("Manage Bridges", {})
         self.inspections_menu = menu.Menu("View Inspection History", {})
-        self.search_bridges_menu = menu.Menu("Search Bridges", {})
         self.reports_menu = menu.Menu("Reports & Analysis", {})
                                    
         self.main_menu.options = {
@@ -27,22 +26,15 @@ class BridgeManagementSystem:
         self.bridges_menu.options = {
             1: ("Add a new bridge", self.add_bridge),
             2: ("View all bridges", self.view_bridges),
-            3: ("Search/filter inspections", self.setup_menu(self.inspections_menu)),
-            4: ("Search/filter bridges", self.setup_menu(self.search_bridges_menu)),
+            3: ("Search/filter bridges", self.filter_bridges),
+            4: ("Manage Inspections", self.setup_menu(self.inspections_menu)),
             5: ("Back to Main Menu", self.setup_menu(self.main_menu))
         }
         self.inspections_menu.options = {
-            1: ("View all inspections", self.view_inspections),
+            1: ("View all inspections", self.view_all_inspections),
             2: ("Record a new inspection", self.record_inspection),
-            #1: ("Search by bridge name", self.view_inspections),
-            #2: ("Search by bridge ID", self.view_inspection_by_id),
-            3: ("Back to Manage Bridges", self.setup_menu(self.bridges_menu))
-        }
-        self.search_bridges_menu.options = {
-            #1: ("Search by name", self.search_by_name),
-            #2: ("Search by location", self.search_by_location),
-            #3: ("Search by type", self.search_by_type),
-            1: ("Back to Manage Bridges", self.setup_menu(self.bridges_menu))
+            3: ("Search/filter inspections", self.filter_inspections),
+            4: ("Back to Manage Bridges", self.setup_menu(self.bridges_menu))
         }
         self.reports_menu.options = {
             #1: ("Generate maintenance priority list", self.generate_priority_list),
@@ -128,31 +120,18 @@ class BridgeManagementSystem:
         except TypeError as error:
             print(f"Error importing Json values: {error}")
 
-    def check_input(self, validation_func, user_prompt):
-        while True:
-            try:
-                user_value = validation_func(input(user_prompt))
-            except ValueError as error:
-                print(f"Invalid value: {error}\n try again")
-                continue
-            except TypeError as error:
-                print(f"Invalid type: {error}\n try again")
-                continue
-            break
-        return user_value
-
     def add_bridge(self):
         """Add a bridge to the list of bridges"""
         inspections: list[bridge.inspection.Inspection] = []
-        bridge_id = self.check_input(bridge.Bridge.validate_bridge_id,
+        bridge_id = input_validation.check_input(bridge.Bridge.validate_bridge_id,
                                     "Bridge ID: ")
-        name = self.check_input(bridge.Bridge.validate_name,
+        name = input_validation.check_input(bridge.Bridge.validate_name,
                                 "Bridge name: ")
-        location = self.check_input(bridge.Bridge.validate_location,
+        location = input_validation.check_input(bridge.Bridge.validate_location,
                                     "Bridge location: ")
-        bridge_type = self.check_input(bridge.Bridge.validate_bridge_type,
+        bridge_type = input_validation.check_input(bridge.Bridge.validate_bridge_type,
                                        "Bridge type: ")
-        year_built = self.check_input(bridge.Bridge.validate_year_built,
+        year_built = input_validation.check_input(bridge.Bridge.validate_year_built,
                                       "Bridge year of construction: ")
         try:
             new_bridge = bridge.Bridge(bridge_id,
@@ -166,7 +145,7 @@ class BridgeManagementSystem:
             raise ValueError from error
         except TypeError as error:
             raise TypeError from error
-        choice = input_validation.validate_y_n(input_validation.validate_y_n,
+        choice = input_validation.check_input(input_validation.validate_y_n,
                                     "Would you like to add Inspections? y/n")
         if choice == 'y':
             while True:
@@ -180,7 +159,7 @@ class BridgeManagementSystem:
             self.bridge_list.append(new_bridge)
 
     def record_inspection(self):
-        input_bridge_id = self.check_input(bridge.Bridge.validate_bridge_id, 
+        input_bridge_id = input_validation.check_input(bridge.Bridge.validate_bridge_id, 
                                      "Enter the ID of the bridge you wish to record an inspection for")
         for loop_bridge in self.bridge_list:
             if loop_bridge.bridge_id == input_bridge_id:
@@ -188,17 +167,16 @@ class BridgeManagementSystem:
                 break
         self.input_inspection(selected_bridge)
         
-
     def input_inspection(self, this_bridge: bridge.Bridge):
-        date = self.check_input(bridge.inspection.Inspection.validate_date,
+        date = input_validation.check_input(bridge.inspection.Inspection.validate_date,
                                 "Inspection date: ")
-        inspector = self.check_input(bridge.inspection.Inspection.validate_inspector,
+        inspector = input_validation.check_input(bridge.inspection.Inspection.validate_inspector,
                                 "Inspector: ")
-        score = self.check_input(bridge.inspection.Inspection.validate_score,
+        score = input_validation.check_input(bridge.inspection.Inspection.validate_score,
                                 "Inspection score: ")
-        defects = self.check_input(bridge.inspection.Inspection.validate_defects,
+        defects = input_validation.check_input(bridge.inspection.Inspection.validate_defects,
                                 "Defects: ")
-        recommendations = self.check_input(bridge.inspection.Inspection.validate_recommendations,
+        recommendations = input_validation.check_input(bridge.inspection.Inspection.validate_recommendations,
                                 "Recommendations: ")
         try:
             this_bridge.add_inspection(date, inspector, score, 
@@ -217,7 +195,7 @@ class BridgeManagementSystem:
                                                 bridge.year_built)
         input("Press enter to continue...")
 
-    def view_inspections(self, local_bridge_list: list[bridge.Bridge] = None):
+    def view_all_inspections(self, local_bridge_list: list[bridge.Bridge] = None):
         if local_bridge_list == None:
             local_bridge_list = self.bridge_list
         for bridge in local_bridge_list:
@@ -233,13 +211,113 @@ class BridgeManagementSystem:
     def exit(self):
         self.display_handler.add_line("Goodbye!", 'c')
         sys.exit()
+    
+    def filter_bridges(self):
+        bridge_id_filter = {
+            "attribute": "bridge_id",
+            "prompt": "Enter Bridge ID to search for: ",
+            "func": bridge.Bridge.bridge_id,
+            "active": False
+        }
+        name_filter = {
+            "attribute": "name",
+            "prompt": "Enter name of bridge to search for: ",
+            "active": False
+        }
+        location_filter = {
+            "attribute": "location",
+            "prompt": "Enter location of bridge to search for: ",  
+            "active": False
+        }
+        bridge_type_filter = {
+            "attribute": "bridge_type",
+            "prompt": "Enter type of bridge to search for: ",
+            "active": False
+        }
+        year_built_filter = {
+            "attribute": "year_built",
+            "prompt": "Enter year built of bridge to search for: ",
+            "active": False
+        }
+        average_score_filter = {
+            "attribute": "average_score",
+        filter_list = [bridge_id_filter, name_filter,
+                       location_filter,
+                       bridge_type_filter,
+                       year_built_filter]
+        filtred_bridge_list: list[bridge.Bridge] = self.bridge_list
+        filter_str = "Filters applied: "
+        for filter in filter_list:
+            printable_attribute = filter["attribute"].replace("_", " ")
+            choice =input_validation.check_input(input_validation.validate_y_n,
+                                     f"Would you like to filter by {printable_attribute}? y/n")
+            if choice == 'y':
+                filter['active'] = True
+                input_value = input_validation.check_input(input_validation.validate_str,
+                                              filter['prompt'])
+                filtred_bridge_list = [bridge for bridge in filtred_bridge_list
+                                       if input_value.lower().strip() in
+                                        str(getattr(bridge, filter["attribute"])).lower().strip()]
+                filter_str += f"{printable_attribute} = {input_value}; "
+                choice = input_validation.check_input(input_validation.validate_y_n,
+                                          "add other filters? y/n")
+                if choice == 'y':
+                    continue
+                else:
+                    self.display_handler.add_line(filter_str, 'c')
+                    self.view_bridges(filtred_bridge_list)
+                    return
 
-    def bridge_search(self):
-        filter_types = ()
-        search_name = input("Enter name of bridge to search for: ")
-        local_bridge_list = [bridge for bridge in self.bridge_list
-                              if bridge.name == search_name]
-        self.view_bridges(local_bridge_list)
+    def filter_inspections(self):
+        date_filter = {
+            "attribute": "date",
+            "prompt": "Enter Date to search for: ",
+            "active": False
+        }
+        inspector_filter = {
+            "attribute": "inspector",
+            "prompt": "Enter name of inspector to search for: ",
+            "active": False
+        }
+        score_filter = {
+            "attribute": "score",
+            "prompt": "Enter inspection score to search for: ",  
+            "active": False
+        }
+        defects_filter = {
+            "attribute": "defects",
+            "prompt": "Enter defetcs to search for: ",
+            "active": False
+        }
+        recommendations_filter = {
+            "attribute": "year_built",
+            "prompt": "Enter recommendations to search for: ",
+            "active": False
+        }
+        filter_list = [date_filter, inspector_filter, score_filter,
+                       defects_filter, recommendations_filter]
+        filtred_inspection_list: list[bridge.inspection.Inspection] = self.inspections
+        filter_str = "Filters applied: "
+        for filter in filter_list:
+            printable_attribute = filter["attribute"].replace("_", " ")
+            choice =input_validation.check_input(input_validation.validate_y_n,
+                                     f"Would you like to filter by {printable_attribute}? y/n")
+            if choice == 'y':
+                filter['active'] = True
+                input_value = input_validation.check_input(input_validation.validate_str,
+                                              filter['prompt'])
+                filtred_inspection_list = [inspection for inspection in filtred_inspection_list
+                                       if input_value.lower().strip() in
+                                        str(getattr(inspection, filter["attribute"])).lower().strip()]
+                filter_str += f"{printable_attribute} = {input_value}; "
+                choice = input_validation.check_input(input_validation.validate_y_n,
+                                          "add other filters? y/n")
+                if choice == 'y':
+                    continue
+                else:
+                    return filtred_inspection_list, filter_str
+
+
 
     def start_menu(self):
         max_input = len(self.current_menu.options)
