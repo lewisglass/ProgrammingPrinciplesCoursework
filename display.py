@@ -30,9 +30,11 @@ class Display:
         Display.add_dividing_line()
 
     @staticmethod
-    def display_inspection(date: datetime, inspector: str, score: int, 
-                           defects: str, recommendations: str):
-        Display.add_line(f"Date: {date}")
+    def display_inspection(name: str, date: datetime, inspector: str, 
+                           score: int, defects: str, recommendations: str):
+        Display.add_dividing_line()
+        Display.add_line(f"Bridge: {name}")
+        Display.add_line(f"Date: {date.strftime("%d %B %Y") }")
         Display.add_line(f"Inspector: {inspector}")
         Display.add_line(f"Score: {score}")
         Display.add_line(f"Defects: {defects}")

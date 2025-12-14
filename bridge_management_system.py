@@ -222,7 +222,8 @@ class BridgeManagementSystem:
             local_bridge_list = self.bridge_list
         for bridge in local_bridge_list:
             for inspection in bridge.inspections:
-                self.display_handler.display_inspection(inspection.date,
+                self.display_handler.display_inspection(bridge.name,
+                                                        inspection.date,
                                                         inspection.inspector,
                                                         inspection.score,
                                                         inspection.defects,
@@ -234,6 +235,7 @@ class BridgeManagementSystem:
         sys.exit()
 
     def bridge_search(self):
+        filter_types = ()
         search_name = input("Enter name of bridge to search for: ")
         local_bridge_list = [bridge for bridge in self.bridge_list
                               if bridge.name == search_name]
