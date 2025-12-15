@@ -30,6 +30,10 @@ class FileOperations:
         with open(self.filename) as open_file:
             parsed_data = json.load(open_file)
             return parsed_data["bridges"]
+        
+    def write_file(self, data):
+        with open(self.filename, 'w') as open_file:
+            json.dump(data, open_file, indent=2)
             
             
             

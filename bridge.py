@@ -6,6 +6,11 @@ class Bridge:
 
     bridge_types = ("Arch", "Tied Arch", "Suspension", "Beam", 
                              "Truss", "Cantilever", "Cable-Stayed")
+    max_str_length = 4000
+    max_name_length = 70
+    min_year_built = 1320
+    max_year_built = datetime.now().year
+    bridge_id_length = 5
 
     def __init__(self, bridge_id, inspections, name,
                   location, bridge_type, year_built):
@@ -16,12 +21,6 @@ class Bridge:
         self.bridge_type = bridge_type
         self.year_built = year_built
         self.inspections = inspections
-    
-    max_str_length = 4000
-    max_name_length = 70
-    min_year_built = 1320
-    max_year_built = datetime.now().year
-    bridge_id_length = 5
 
     @classmethod
     def validate_bridge_id(cls, bridge_id: str) -> str:
@@ -29,6 +28,8 @@ class Bridge:
         input_validation.validate_str(bridge_id, cls.bridge_id_length)
         if not bridge_id[0] == 'B':
             raise ValueError("Bridge id must start with a 'B'")
+        if not len(bridge_id) == 5:
+            raise ValueError("Bridge id must contain 5 characters")
         try:
             int(bridge_id[1:])
         except ValueError as error:
@@ -81,26 +82,25 @@ class Bridge:
     
     def add_inspection(self, date: datetime, inspector: str, 
                        score: int, defects: str, recommendations: str):
-        while True:
-            try:  
-                new_inspection = inspection.Inspection(date,
-                                                       inspector,
-                                                       score,
-                                                       defects,
-                                                       recommendations)
-                self.inspections.append(new_inspection)
-            except ValueError as error:
-                raise ValueError from error
-            except TypeError as error:
-                raise TypeError from error
+        try:  
+            new_inspection = inspection.Inspection(date,
+                                                    inspector,
+                                                    score,
+                                                    defects,
+                                                    recommendations)
+            self.inspections.append(new_inspection)
+        except ValueError as error:
+            raise error
+        except TypeError as error:
+            raise error
 
     def calculate_average_score(self) -> float | None:
         """Sets average score"""
         total_score = 0
-        if self.inspections == []:
+        if not self.inspections:
             return None
-        for inspection in self.inspections:
-            total_score += inspection.score
+        for insp in self.inspections:
+            total_score += insp.score
         return total_score / len(self.inspections)
     
     @property

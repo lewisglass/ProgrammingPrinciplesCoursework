@@ -1,6 +1,6 @@
 from datetime import datetime
 
-def check_input(self, validation_func, user_prompt):
+def check_input(validation_func, user_prompt):
         while True:
             try:
                 user_value = validation_func(input(user_prompt))
