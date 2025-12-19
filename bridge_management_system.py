@@ -6,12 +6,14 @@ import sys
 import input_validation
 
 class BridgeManagementSystem:
+    """Main class controlling high level app logic"""
 
-    def __init__(self):
+    def __init__(self, debug = False):
         """Contructor for BridgeManagementSystem class"""
         self.bridge_list: list[bridge.Bridge] = []
         self.file_manager: file_handler.FileOperations = file_handler.FileOperations("bridge_data.json")
         self.display_handler = display.Display()
+        self.debug = debug
 
         self.main_menu = menu.Menu("Main Menu", {})
         self.bridges_menu = menu.Menu("Manage Bridges", {})
@@ -21,7 +23,9 @@ class BridgeManagementSystem:
         self.main_menu.options = {
             1: ("Manage Bridges", self.setup_menu(self.bridges_menu)),
             2: ("Reports & Analysis", self.setup_menu(self.reports_menu)),
-            3: ("Save and Exit", self.exit)
+            3: ("Save", self.save_changes),
+            4: ("Save and Exit", self.exit),
+            5: ("Exit without saving", self.hard_exit)
         }
         self.bridges_menu.options = {
             1: ("Add a new bridge", self.add_bridge),
@@ -33,17 +37,19 @@ class BridgeManagementSystem:
         self.inspections_menu.options = {
             1: ("View all inspections", self.view_all_inspections),
             2: ("Record a new inspection", self.record_inspection),
-            3: ("Back to Manage Bridges", self.setup_menu(self.bridges_menu))
+            3: ("View inspections for specific bridge", self.view_inspection_prompt),
+            4: ("Back to Manage Bridges", self.setup_menu(self.bridges_menu))
         }
         self.reports_menu.options = {
-            #1: ("Generate maintenance priority list", self.generate_priority_list),
-            #2: ("Generate summary report", self.generate_summary_report),
-            1: ("Back to Main Menu", self.setup_menu(self.main_menu))
+            1: ("Generate maintenance priority list", self.generate_priority_list),
+            2: ("Generate summary report", self.summary_report),
+            3: ("Back to Main Menu", self.setup_menu(self.main_menu))
         }
 
         self.current_menu: menu.Menu = None
 
     def total_bridges(self) -> int:
+        """returns total bridges in system"""
         return len(self.bridge_list)
 
     def setup_menu(self, new_menu):
@@ -93,25 +99,56 @@ class BridgeManagementSystem:
            raise TypeError("Error in file manager initialisation")
         self.__display_handler = display_handler
 
+    def generate_priority_list(self):
+        """generates a priority list based on low scores and lack of recent inspections"""
+        priority_list = [brg for brg in self.bridge_list
+                         if (due := brg.inspection_due())
+                          is not None and due]
+        self.display_handler.add_line("Bridges not inspected in over 2 years: ")
+        self.view_bridges(priority_list, True)
+        priority_list = [brg for brg in self.bridge_list
+                         if (score := brg.calculate_average_score())
+                          is not None and score < 40]
+        self.display_handler.add_line("Bridges with poor score, requiring work: ")
+        self.view_bridges(priority_list, True)
+        priority_list = [brg for brg in self.bridge_list
+                         if brg.inspections == []]
+        self.display_handler.add_line("Bridges with no recorded: ")
+        self.view_bridges(priority_list, True)
+
     def summary_report(self):
+        """Summarieses the average scores across all briges in the system"""
+        self.display_handler.add_line("Not scored", 'c')
+        condition_list = [brg for brg in self.bridge_list
+                          if brg.calculate_average_score() == None]
+        self.view_bridges(condition_list, True)
         self.display_handler.add_line("Excellent 80 - 100", 'c')
         condition_list = [brg for brg in self.bridge_list
-                          if brg.calculate_average_score >= 80]
+                          if (score := brg.calculate_average_score())
+                          is not None and score >= 80]
+        self.view_bridges(condition_list, True)
         self.display_handler.add_line("Good 60 - 79", 'c')
         condition_list = [brg for brg in self.bridge_list
-                          if brg.calculate_average_score >= 60
-                          and brg.calculate_average_score < 80]
+                          if (score := brg.calculate_average_score())
+                          is not None and score >= 60
+                          and score < 80]
+        self.view_bridges(condition_list, True)
         self.display_handler.add_line("Fair 40 - 59", 'c')
         condition_list = [brg for brg in self.bridge_list
-                          if brg.calculate_average_score >= 40
-                          and brg.calculate_average_score < 60]
+                          if (score := brg.calculate_average_score())
+                          is not None and score >= 40
+                          and score < 60]
+        self.view_bridges(condition_list, True)
         self.display_handler.add_line("Poor 0 - 39", 'c')
         condition_list = [brg for brg in self.bridge_list
-                          if brg.calculate_average_score < 40]
+                          if (score := brg.calculate_average_score())
+                          is not None and score < 40]
+        self.view_bridges(condition_list, True)
         
     def import_bridge_list(self):
         """Imports list of bridges from bridge_data.json"""
         try:
+            self.file_manager.verify_file()
             from_file = self.file_manager.read_file()
             self.bridge_list = []
             for bridge_json in from_file:
@@ -137,6 +174,33 @@ class BridgeManagementSystem:
             print(f"Error importing Json values: {error}")
         except TypeError as error:
             print(f"Error importing Json values: {error}")
+        except FileNotFoundError as error:
+            self.display_handler.add_line("File not found, generating default file")
+            self.setup_json()
+        except PermissionError:
+            self.display_handler.add_line("No permission to write/read file")
+            self.exit()
+        except IsADirectoryError:
+            self.display_handler.add_line("Directory found, not file")
+            self.exit()
+
+    def setup_json(self):
+        """Initialises the JSON information if no file is detected"""
+        inspection_template = bridge.inspection.Inspection("2024-03-15",
+                                                           "John Smith",
+                                                           72,
+                                                           "Minor paint deterioration on south tower",
+                                                           "Schedule repainting in next 2 years")
+        inspection_list = [inspection_template]
+        bridge_template = bridge.Bridge("B0001",
+                                        inspection_list,
+                                        "Forth Bridge",
+                                        "Queensferry",
+                                        "Cantilever",
+                                        1890)
+        bridge_list = [bridge_template]
+        if not self.debug:
+            self.save_changes(bridge_list)
 
     def add_bridge(self):
         """Add a bridge to the list of bridges"""
@@ -168,8 +232,8 @@ class BridgeManagementSystem:
         if choice == 'y':
             while True:
                 self.input_inspection(new_bridge)
-                choice = input_validation.validate_y_n(input_validation.validate_str,
-                                          "Would you like to add inspection? y/n")
+                choice = input_validation.check_input(input_validation.validate_y_n,
+                                          "Would you like to add another inspection? y/n")
                 if choice == 'y':
                     continue
                 else :
@@ -177,6 +241,7 @@ class BridgeManagementSystem:
             self.bridge_list.append(new_bridge)
 
     def record_inspection(self):
+        """Records an inspection for a specific bridge"""
         input_bridge_id = input_validation.check_input(bridge.Bridge.validate_bridge_id, 
                                      "Enter the ID of the bridge you wish to record an inspection for: ")
         for loop_bridge in self.bridge_list:
@@ -186,6 +251,7 @@ class BridgeManagementSystem:
         self.input_inspection(selected_bridge)
         
     def input_inspection(self, this_bridge: bridge.Bridge):
+        """Allows the user to input data to create an inspection"""
         date = input_validation.check_input(bridge.inspection.Inspection.validate_date,
                                 "Inspection date (yyyy-mm-dd): ")
         inspector = input_validation.check_input(bridge.inspection.Inspection.validate_inspector,
@@ -204,19 +270,21 @@ class BridgeManagementSystem:
         except TypeError as error:
             raise TypeError from error
 
-    def view_bridges(self, local_bridge_list: list[bridge.Bridge] = None):
+    def view_bridges(self, local_bridge_list: list[bridge.Bridge] = None, skip = False):
+        """Displays all bridge information in the system"""
         if local_bridge_list == []:
             self.display_handler.add_line("No Bridges found")
-            input("Press enter to continue...")
         if local_bridge_list == None:
             local_bridge_list = self.bridge_list
         for bridge in local_bridge_list:
             self.display_handler.display_bridge(bridge.bridge_id,bridge.name,
                                                 bridge.location, bridge.bridge_type,
-                                                bridge.year_built)
-        input("Press enter to continue...")
+                                                bridge.year_built, bridge.calculate_average_score())
+        if not skip:
+            input("Press enter to continue...")
 
     def view_all_inspections(self, local_bridge_list: list[bridge.Bridge] = None):
+        """Displays all inspection information in the system"""
         if local_bridge_list == None:
             local_bridge_list = self.bridge_list
         for bridge in local_bridge_list:
@@ -229,11 +297,31 @@ class BridgeManagementSystem:
                                                         inspection.recommendations)
         input("Press enter to continue...")
 
+    def view_inspection_prompt(self):
+        """Prompts the user to select a bridge to view the inspections of"""
+        brg_id = input_validation.check_input(bridge.Bridge.validate_bridge_id,
+                                        "Enter bridge ID: ")
+        selected_bridge = None
+        for brg in self.bridge_list:
+            if brg.bridge_id == brg_id:
+                selected_bridge = brg
+                break
+        if selected_bridge == None:
+            self.display_handler.add_line("Bridge not found")
+            return
+        local_list = [selected_bridge]
+        self.view_all_inspections(local_list)
+
     def exit(self):
         self.display_handler.add_line("Goodbye!", 'c')
         sys.exit()
 
+    def hard_exit(self):
+        self.display_handler.add_line("Goodbye!", 'c')
+        self.debug = True
+        sys.exit()
     def filter_bridges(self):
+        """User selects values to filter bridges by and then applies those selected"""
         id_str = None
         name_str = None
         location_str = None
@@ -281,10 +369,10 @@ class BridgeManagementSystem:
         self.apply_bridge_filters(id_str, name_str, location_str, 
                                   type_str, year_val, year_operator)
             
-
     def apply_bridge_filters(self, id_str: str = None, name_str: str = None, 
                              location_str: str = None, type_str: str = None, 
                              year_val: int = None, year_operator: str = None):
+        """Filters are applied by removing non compliant bridge objects"""
         filtered_list = self.bridge_list
         if id_str is not None:
             search_str = id_str.strip().lower()
@@ -322,14 +410,17 @@ class BridgeManagementSystem:
                                 bridge.year_built]
         self.view_bridges(filtered_list)
 
-    def save_changes(self, bridge_list: list):
+    def save_changes(self, bridge_list: list = None):
+        """Saves JSON file with self.bridge_list contents"""
+        if bridge_list == None:
+            bridge_list = self.bridge_list
         data = {"bridges": []}
         for br in bridge_list:
             inspections = []
-            date_str = getattr(insp, "date", None).strftime("%Y-%m-%d")
             for insp in getattr(br, "inspections", []):
+                date_str = getattr(insp, "date", None).strftime("%Y-%m-%d")
                 inspections.append({
-                    "date": getattr(insp, "date", None),
+                    "date": date_str,
                     "inspector": getattr(insp, "inspector", ""),
                     "score": getattr(insp, "score", None),
                     "defects": getattr(insp, "defects", ""),
@@ -346,8 +437,9 @@ class BridgeManagementSystem:
             })
         self.file_manager.write_file(data)
         
-
     def start_menu(self):
+        """Looping function which displays the menu and options avaialable.
+        user then selects option which call a function in the mneus dictionary"""
         max_input = len(self.current_menu.options)
         min_input = 1 #all menus start with 1
         self.display_handler.display_menu(self.current_menu.name, self.current_menu.options)
@@ -362,10 +454,12 @@ class BridgeManagementSystem:
                     print("Invalid, make a new choice: ")
             except ValueError:
                 print("Invalid, choice must be an integer, make a new choice")
+            except KeyboardInterrupt:
+                print("\nExited via keyboard")
             self.start_menu()
 
     def run(self):
-        
+        """main application starts from here"""
         try:
             self.import_bridge_list()
             self.setup_menu(self.main_menu)()
@@ -375,7 +469,8 @@ class BridgeManagementSystem:
             print(error)
         
         finally:
-            self.save_changes(self.bridge_list)
+            if not self.debug:
+                self.save_changes()
         
 
          

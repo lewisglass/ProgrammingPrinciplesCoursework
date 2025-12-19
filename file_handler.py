@@ -15,8 +15,11 @@ class FileOperations:
     @filename.setter
     def filename(self, filename):
         """Setter for __filename"""
-        full_path = os.path.join(os.path.dirname(__file__), filename)
-        self.__filename = full_path
+        try:
+            full_path = os.path.join(os.path.dirname(__file__), filename)
+            self.__filename = full_path
+        except Exception as error:
+            print("Error finding file")
 
     def verify_file(self):
         """Verifies that database exists and is accesible"""
@@ -27,15 +30,16 @@ class FileOperations:
             raise
         
     def read_file(self):
+        """read JSON format from file and return it"""
         with open(self.filename) as open_file:
             parsed_data = json.load(open_file)
             return parsed_data["bridges"]
         
     def write_file(self, data):
+        """write to file or create it if it does not exist"""
         with open(self.filename, 'w') as open_file:
             json.dump(data, open_file, indent=2)
-            
-            
-            
+
+
 
 

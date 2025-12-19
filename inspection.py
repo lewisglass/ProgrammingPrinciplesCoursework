@@ -2,37 +2,44 @@ from datetime import datetime
 import input_validation
 
 class Inspection:
-    
-    def __init__(self, date, inspector, score, defects, recommendations):
-        self.date = date
-        self.inspector = inspector
-        self.score = score
-        self.defects = defects
-        self.recommendations = recommendations
+    """class for controlling Inspection level logic"""
     
     max_str_length = 4000
     max_name_length = 70
     max_score = 100
     min_score = 0
 
+    def __init__(self, date, inspector, score, defects, recommendations):
+        """Inspection constructor"""
+        self.date = date
+        self.inspector = inspector
+        self.score = score
+        self.defects = defects
+        self.recommendations = recommendations
+
     @staticmethod
     def validate_date(date: str) -> datetime:
+        """Validation for datetime types from strings"""
         return input_validation.validate_date(date)
     @classmethod
     def validate_inspector(cls, inspector: str) -> str:
+        """validation for strings"""
         return input_validation.validate_str(inspector,
                                              cls.max_name_length)
     @classmethod
     def validate_score(cls, score: int) -> int:
+        """validation for ints"""
         return input_validation.validate_int(score, 
                                              cls.min_score, 
                                              cls.max_score)
     @classmethod
     def validate_defects(cls, defects: str) -> str:
+        """validation for strings"""
         return input_validation.validate_str(defects,
                                              cls.max_str_length)
     @classmethod
     def validate_recommendations(cls, recommendations: str) -> str:
+        """validation for strings"""
         return input_validation.validate_str(recommendations, 
                                              cls.max_str_length)
 

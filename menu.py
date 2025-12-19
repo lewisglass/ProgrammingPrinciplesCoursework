@@ -1,5 +1,8 @@
 class Menu:
+    """controls the menu diplsayed to the user and the functions that
+    each option within it points to"""
     def __init__(self, name, options):
+        """Menu constructor"""
         self.name = name
         self.options = options
 
@@ -24,9 +27,11 @@ class Menu:
         self.__options = options
 
     def option_name(self, index):
+        """returns option name for displaying the menu"""
         name, _ = self.options.get(index)
         return name
     
     def option_func(self, index):
+        """returns option function for displaying the menu"""
         _, func= self.options.get(index)
         return func

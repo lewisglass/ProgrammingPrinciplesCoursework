@@ -3,6 +3,7 @@ from datetime import datetime
 import input_validation
 
 class Bridge:
+    """class for controlling Bridge level logic"""
 
     bridge_types = ("Arch", "Tied Arch", "Suspension", "Beam", 
                              "Truss", "Cantilever", "Cable-Stayed")
@@ -39,11 +40,13 @@ class Bridge:
     
     @classmethod
     def validate_name(cls, name: str) -> str:
+        """Static method for validating bridge name"""
         return input_validation.validate_str(name, 
                                       cls.max_name_length)
         
     @classmethod
     def validate_location(cls, location: str) -> str:
+        """Static method for validating bridge location"""
         return input_validation.validate_str(location, 
                                       cls.max_name_length)
         
@@ -62,9 +65,34 @@ class Bridge:
 
     @classmethod
     def validate_year_built(cls, year_built: int | str) -> int:
+        """Static method for validating bridge year_built"""
         return input_validation.validate_int(year_built, 
                                       cls.min_year_built, 
                                       cls.max_year_built)
+
+    def inspection_due(self):
+        """returns if an inspection has not occured in the last 2 years"""
+        try:
+            if self.inspections == []:
+                return None
+            curr_time = datetime.now()
+            latest_inspection_date = datetime(self.year_built, 1, 1)
+            for insp in self.inspections:
+                if insp.date > latest_inspection_date:
+                    latest_inspection_date = insp.date
+                else:
+                    continue
+            time_difference =  curr_time - latest_inspection_date
+            if (time_difference.days / 365) > 2:
+                return True
+            else:
+                return False
+        except ValueError as error:
+            print(error)
+            return False
+        except TypeError:
+            print(error)
+            return False
 
     def validate_inspections(self, inspections: list[inspection.Inspection]) -> list[inspection.Inspection]:
         """Method for validating inspections"""
@@ -82,6 +110,7 @@ class Bridge:
     
     def add_inspection(self, date: datetime, inspector: str, 
                        score: int, defects: str, recommendations: str):
+        """add inspection to self.inspections list"""
         try:  
             new_inspection = inspection.Inspection(date,
                                                     inspector,
